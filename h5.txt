@@ -1,0 +1,76 @@
+链接：https://juejin.cn/post/6844903846645334030
+vedio
+♢ video点播与直播 H5 video
+目前所有浏览器都支持的视频格式是MP4格式，所以mp4应当是点播web视频的首选格式。
+而在直播视频上，H5 video只在移动端原生支持HLS流的直播视频(Mac safari video标签也支持， PC Chrome不支持)，其他直播流（如FLV）就需要Flash插件的支持。
+
+♢ video与206状态码
+video播放mp4时，发的依然是get请求，但http返回206状态码， 即partial Content。
+
+♢ 终止视频下载  ！！！
+video.pause() 可以暂停视频播放，但并不能停止视频资源的继续加载，媒体元素会继续加载直到被垃圾回收机制回收。
+要在暂停播放后立即停止，可使用以下方法
+video.pause()
+video.src=''
+video.removeAttribute('src');
+
+♢ 防止iOS上默认全屏播放
+ios10及以后的版本，可以通过给video标签加playsinline属性防止iOS默认全屏播放，ios9之前加webkit-playsinline属性，如果要兼容，则把两个属性都加上。
+通过客户端添加配置UIwebview:  webview.allowsInlineMediaPlayback = YES，不过还是要求在video元素上加playsinline属性
+like below: <video id="player" width="480" height="320" webkit-playsinline>
+
+♢ 自动播放及播放控制在移动端
+有些浏览器支持添加autoplay属性后自动播放，有些设置 autoplay 和 muted属性也能自动播放，比如IOS 10+、Chrome。
+如果想控制什么时候播放，且并不是用户触发的（如没有设置controls），那就设置muted属性，然后调用video.play()方法，隔300ms左右有后，再通过video.muted = false打开声音。
+vide.muted = true;
+video.play()
+setTimeout(function () {
+    video.muted = false
+}, 300)
+
+♢ iOS9及之前的版本要求有用户交互才能播放，即手动点击播放按钮或者有用户触发的click、touchend、键盘等事件，然后调用video.play() 方法播放。
+在iOS9之前，iOS Native可以通过UIWebView的mediaPlaybackRequiresUserAction属性来控制是否需要用户交互。
+使用element.click()触发的click事件是否可以被认为是用户行为？不能，通过event的isTrusted判断
+浏览器是如何知道是否是用户触发的事件？Event对象的只读属性isTrusted
+<div id="test-ele">这个元素监听事件</div>
+<script>
+    const testEle = document.querySelector('#test-ele');
+    testEle.addEventlistener('click', function (evt) {
+        // 用户触发为true，script或EventTarget.dispatchEvent() 触发为false
+        console.log(evt.isTrusted);
+    }, false);
+    testEle.click() // 这个触发，evt.isTrusted = false
+</script>
+Event 接口的 isTrusted 属性是一个只读属性，它是一个布尔值（Boolean (en-US)）。
+当事件是由用户行为生成的时候，这个属性的值为 true ，
+而当事件是由脚本创建、修改、通过 EventTarget.dispatchEvent() 派发的时候，这个属性的值为 false 
+
+♢ video.play() 的Promise对象（可用于捕获视频播放错误）
+在Chrome上，如果没有设置video.muted属性，在非用户行为下，直接使用video.play() 播放，会收到 Uncaught (in promise) DOMException 的报错，视频也没有播放。
+在iOS下面，可能不会有任何报错，视频也没播放，这样就无法定位问题。
+video.play() 会返回一个Promise对象，如果播放失败，可以通过返回的Promise catch到相关错误信息。
+const pro = video.play();
+if (pro) {  // iOS9及以下版本不会返回Promise对象，做下兼容处理
+   pro.catch(err=>{ console.log(err) });   
+}
+
+♢ TimeRanges 对象在开始获取played属性的时候，以为会返回一个已经播放的时长，实际上返回的是TimeRanges对象，
+    而且看到TimeRanges的length一直不变，当时一脸摸不着头脑，不知道有什么用。后来在做进度控制，需要知道视频已缓冲多少时，才弄明白。
+    video DOM对象有三个属性会返回TimeRanges对象，分别为video.played/ video.buffered/ video.seekable
+    视频开始时只有一个播放时间段，如果不进行跳跃观看，就一直只有一个时间段，即 TimeRanges.length 值为1；
+    如果进行了跳跃观看（如从2分钟，突然跳进到15分钟的位置），而跳跃内容并没有缓冲完毕，则会出现两个时间段，这时TimeRanges的length为2。
+    所以TimeRanges个数会随着跳跃观看未缓冲完成的内容而增加，随着缓冲的完成而减少，最少为1个，即从开头到结尾。
+    ------------------------------------------------------
+    |=============||===========||
+    ------------------------------------------------------
+    0         5                15 19    21
+    TimeRanges对象有一个length属性和start()、play()两个方法：TimeRanges:
+    length: 1      // 代表当前播放视频存在的播放段
+    play(index)    // 获取指定播放段的播放（缓冲）开始时间，index从0开始取，以秒计
+    end(index)     // 获取指定播放段的播放（缓冲）结束时间
+    要获取第一段的开始时间，使用TimeRanges.start(0)，结束时间为TimeRanges.end(0)，第二段TimeRanges.start(1)，以此类推
+
+♢ video的宽高
+video视区的高宽根据视频源有不同的固定比例，
+但并不会出现因video标签或其容器的高宽设置比例与视频源比例不一致而出现拉伸、变形，
+会自动根据设置的高宽中较小的值按照自身的比例进行缩放，不足的会两边补白居中。
