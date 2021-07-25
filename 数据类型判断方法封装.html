@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    var _obj = {
+      isNumeric: 'Number',
+      isBoolean: 　 'Boolean',
+      isString: 'String',
+      isNull: 'Null',
+      isUndefined: 'Undefined',
+      isArray: 'Array',
+      isFunction: 'Function',
+      isPlainObject: 'Object',
+      isRegExp: 'RegExp',
+      isSymbol: 'Symbol',
+      isBigInt: 'BigInt',
+      isDate: 'Date',
+      isMath: 'Math',
+      isWindow: 'Window',
+      isEmpty: 'Undefined'
+    }
+    _toString = _obj.toString // Object.prototype.toString
+    _type = {}
+    for (var key in _obj) {
+      if (!_obj.hasOwnProperty(key)) break // 防止原型属性的东西被带上
+      _type[key] = (function() {
+        var reg = new RegExp('\\[object ' + _obj[key] + '\\]')
+        return function(val) {
+          return reg.test(_toString.call(val))
+        }
+      })()
+    }
+    console.log(_type.isArray([]))
+    for (var y = 0; y < 5; y++) {
+      (function(val) {
+        setTimeout(() => {
+          console.log(val)
+        })
+      })(y)
+    }
+
+    function func() {
+      console.log(arguments.__proto__ === Object.prototype) // true
+      console.log(arguments.__proto__ === Array.prototype) // false
+    }
+    func()
+  </script>
+</body>
+
+</html>
