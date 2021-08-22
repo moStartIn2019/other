@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .initial-ul {
+            font-size: 13px;
+        }
+        .initial-ul li:last-child {
+            font-size: initial;
+        }
+        .center {
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+        dialog {
+            all: unset; /* 表现和span元素一样 */
+        }
+        .revert-ol {
+            list-style: none;
+        }
+        @supports (padding: revert) {
+            .revert-ol {
+                padding: revert;
+                list-style-type: revert;
+            }
+        }
+        /* all可以配合unset或者revert使用 */
+        /* 仅ios safari有效 */
+        @supports (-webkit-overflow-scrolling: touch) {
+            /* 进度条还原成系统默认的样式 */
+            progress {
+                all: revert; 
+            }
+        }
+        /* 利用属性值的语法差异实现兼容，其实就是支持该属性的浏览器覆盖通用属性，旧浏览器仍旧使用通用的属性 */
+        .icon-loading {
+            width: 30px;
+            height: 30px;
+            /* 所有浏览器识别 */
+            background: url('./assets/images/loading_gif.gif');
+            /* ie10+浏览器识别，覆盖上一行background声明，linear-gradient在ie9之下不支持 */
+            background: url('./assets/images/loading.png'), linear-gradient(transparent, transparent);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(360deg);
+            }
+            to {
+                transform: rotate(0deg);
+            }
+        }
+        .panel-x {
+            width: 10px;
+            height: 10px;
+            border: 1px solid #ddd;
+            border: 1px solid rgba(0,0,0,0);
+            box-shadow: 2px 2px;
+        }
+    </style>
+</head>
+<body>
+    <ul class="initial-ul">
+        <li>追梦人 <small>1个亿</small></li>
+        <li>票房 <small>3个亿</small></li>
+        <li>醉拳舞 <small>2个亿</small></li>
+        <li>余年 <small>4个亿</small></li>
+        <li>CSS 新世界 <small>5个亿</small></li>
+    </ul>
+    <div class="center">123</div>
+    <dialog open>CSS 新世界</dialog>
+    <ol class="revert-ol">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ol>
+    <div class="icon-loading"></div>
+    <div class="panel-x"></div>
+</body>
+</html>
