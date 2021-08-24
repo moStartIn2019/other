@@ -132,6 +132,52 @@
     .num~div {
       font-size: 20px;
     }
+    
+    button[id="btn"] {
+      position: absolute;
+      clip: rect(0 0 0 0);
+    }
+    
+    label {
+      display: inline-block;
+      line-height: 20px;
+      padding: 10px;
+      border: 1px solid #000;
+    }
+    
+    .san-dao-gan {
+      width: 100px;
+      height: 10px;
+      padding: 10px 0;
+      border-top: 10px solid;
+      border-bottom: 10px solid;
+      background-color: currentColor;
+      background-clip: content-box;
+    }
+    
+    .circle-in-circle {
+      width: 100px;
+      height: 100px;
+      padding: 10px;
+      border: 10px solid;
+      border-radius: 50%;
+      background: currentColor;
+      background-clip: content-box;
+    }
+    
+    .ul-margin-test {
+      margin-right: -20px;
+      /* 拓宽ul，等价于100% + 20px */
+    }
+    
+    .ul-margin-test>li {
+      list-style: none;
+      width: 100px;
+      height: 100px;
+      float: left;
+      margin-right: 20px;
+      background: red;
+    }
   </style>
 </head>
 
@@ -174,7 +220,15 @@
       </div>
     </div>
   </div>
-  </div>
+  <button id="btn"></button>
+  <label for="btn">按钮</label>
+  <div class="san-dao-gan"></div>
+  <div class="circle-in-circle"></div>
+  <ul class="ul-margin-test">
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+  </ul>
 </body>
 
 </html>
